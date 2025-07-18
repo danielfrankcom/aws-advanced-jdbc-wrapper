@@ -1,7 +1,9 @@
 spring:
   datasource:
-    url: jdbc:aws-wrapper:postgresql://cluster-identifier.dsql.us-east-1.on.aws:5432/postgres
-    username: admin
+    dsql:
+      clusterId: cluster-identifier
+      region: us-east-1
+      username: admin
     driver-class-name: software.amazon.jdbc.Driver
     hikari:
       data-source-properties:
