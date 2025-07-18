@@ -966,21 +966,27 @@ public class TestEnvironment implements AutoCloseable {
   }
 
   private static void initDatabaseParams(TestEnvironment env) {
-    final boolean isHibernateOnly =
-        env.info.getRequest().getFeatures().contains(TestEnvironmentFeatures.RUN_HIBERNATE_TESTS_ONLY);
+    final TestEnvironmentRequest request = env.info.getRequest();
+    final boolean isHibernateOnly = request.getFeatures().contains(TestEnvironmentFeatures.RUN_HIBERNATE_TESTS_ONLY);
+    final boolean isDsql = (request.getDatabaseEngineDeployment() == DatabaseEngineDeployment.DSQL);
+
     final String dbName =
         isHibernateOnly
             ? "hibernate_orm_test"
-            : (config.dbName == null
-              ? "test_database"
-              : config.dbName.trim());
+            : isDsql
+              ? "postgres"
+              : (config.dbName == null
+                ? "test_database"
+                : config.dbName.trim());
 
     final String dbUsername =
         isHibernateOnly
             ? "hibernate_orm_test"
-            : (!StringUtils.isNullOrEmpty(config.dbUsername)
-              ? config.dbUsername
-              : "test_user");
+            : isDsql
+                ? "admin"
+                : (!StringUtils.isNullOrEmpty(config.dbUsername)
+                  ? config.dbUsername
+                  : "test_user");
     final String dbPassword =
         isHibernateOnly
             ? "hibernate_orm_test"
@@ -1252,11 +1258,14 @@ public class TestEnvironment implements AutoCloseable {
     }
 
     final DatabaseEngineDeployment deployment = env.info.getRequest().getDatabaseEngineDeployment();
+    final boolean isDsql = (deployment == DatabaseEngineDeployment.DSQL);
 
     env.info.setIamUsername(
         !StringUtils.isNullOrEmpty(config.iamUser)
             ? config.iamUser
-            : "jane_doe");
+            : isDsql
+              ? "admin"
+              : "jane_doe");
 
     if (!env.reuseDb) {
       try {

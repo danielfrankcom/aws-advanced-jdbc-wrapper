@@ -52,7 +52,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
@@ -80,6 +82,12 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.core.waiters.WaiterResponse;
 import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.retries.api.BackoffStrategy;
+import software.amazon.awssdk.services.dsql.DsqlClient;
+import software.amazon.awssdk.services.dsql.model.CreateClusterRequest;
+import software.amazon.awssdk.services.dsql.model.CreateClusterResponse;
+import software.amazon.awssdk.services.dsql.model.GetClusterResponse;
+import software.amazon.awssdk.services.dsql.model.ResourceNotFoundException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.DescribeSecurityGroupsResponse;
 import software.amazon.awssdk.services.ec2.model.Ec2Exception;
@@ -153,6 +161,7 @@ public class AuroraTestUtility {
   private static final Random rand = new Random();
 
   private final RdsClient rdsClient;
+  private final DsqlClient dsqlClient;
   private final Ec2Client ec2Client;
 
   public AuroraTestUtility(String region, String endpoint) {
@@ -194,6 +203,10 @@ public class AuroraTestUtility {
     }
 
     rdsClient = rdsClientBuilder.build();
+    dsqlClient = DsqlClient.builder()
+        .region(region)
+        .credentialsProvider(credentialsProvider)
+        .build();
     ec2Client = Ec2Client.builder()
         .region(region)
         .credentialsProvider(credentialsProvider)
@@ -307,7 +320,7 @@ public class AuroraTestUtility {
         .storageType(DEFAULT_STORAGE_TYPE)
         .allocatedStorage(DEFAULT_ALLOCATED_STORAGE)
         .iops(DEFAULT_IOPS)
-        .tags(this.getTag())
+        .tags(this.getTags())
         .build());
 
     // Wait for all instances to be up
@@ -385,7 +398,7 @@ public class AuroraTestUtility {
             .engine(engine)
             .engineVersion(version)
             .storageEncrypted(true)
-            .tags(this.getTag())
+            .tags(this.getTags())
             .dbClusterParameterGroupName(clusterParameterGroupName)
             .build();
 
@@ -402,7 +415,7 @@ public class AuroraTestUtility {
               .engine(engine)
               .engineVersion(version)
               .publiclyAccessible(true)
-              .tags(this.getTag())
+              .tags(this.getTags())
               .build());
     }
 
@@ -461,7 +474,7 @@ public class AuroraTestUtility {
             .enablePerformanceInsights(false)
             .backupRetentionPeriod(1)
             .storageEncrypted(true)
-            .tags(this.getTag())
+            .tags(this.getTags())
             .allocatedStorage(DEFAULT_ALLOCATED_STORAGE)
             .dbClusterInstanceClass(instanceClass)
             .storageType(DEFAULT_STORAGE_TYPE)
@@ -504,7 +517,7 @@ public class AuroraTestUtility {
             .engine(info.getDatabaseEngine())
             .engineVersion(info.getDatabaseEngineVersion())
             .publiclyAccessible(true)
-            .tags(this.getTag())
+            .tags(this.getTags())
             .build());
 
     // Wait for the instance to become available
@@ -1947,7 +1960,7 @@ public class AuroraTestUtility {
             CreateBlueGreenDeploymentRequest.builder()
                 .blueGreenDeploymentName(blueGreenName)
                 .source(sourceArn)
-                .tags(this.getTag())
+                .tags(this.getTags())
                 .build());
       } catch (RdsException ex) {
         if (ex.statusCode() != 500 || count == 0) {
@@ -2119,13 +2132,17 @@ public class AuroraTestUtility {
     }
   }
 
-  private Tag getTag() {
+  private Tag[] getTags() {
     ZoneId zoneId = ZoneId.of("America/Los_Angeles");
     ZonedDateTime zdt = Instant.now().atZone(zoneId);
     String timeStr = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss zzz"));
-    return Tag.builder()
-        .key("env").value("test-runner")
-        .key("created").value(timeStr)
-        .build();
+    return new Tag[]{
+        Tag.builder()
+            .key("env").value("test-runner")
+            .build(),
+        Tag.builder()
+            .key("created").value(timeStr)
+            .build(),
+    };
   }
 }

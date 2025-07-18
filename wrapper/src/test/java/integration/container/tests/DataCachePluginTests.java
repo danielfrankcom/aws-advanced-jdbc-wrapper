@@ -69,7 +69,7 @@ public class DataCachePluginTests {
     PropertyDefinition.CONNECT_TIMEOUT.set(props, "30000");
     PropertyDefinition.SOCKET_TIMEOUT.set(props, "30000");
 
-    props.setProperty(PropertyDefinition.PLUGINS.name, "dataCache");
+    ConnectionStringHelper.addPlugin(props, "dataCache");
     props.setProperty(DataCacheConnectionPlugin.DATA_CACHE_TRIGGER_CONDITION.name, ".*testTable.*");
 
     Connection conn = DriverManager.getConnection(ConnectionStringHelper.getWrapperUrl(), props);
@@ -145,7 +145,7 @@ public class DataCachePluginTests {
         () -> {
           try {
             final Properties props = ConnectionStringHelper.getDefaultProperties();
-            Connection conn = DriverManager.getConnection(ConnectionStringHelper.getUrl(), props);
+            Connection conn = DriverManager.getConnection(ConnectionStringHelper.getWrapperUrl(), props);
             Statement statementFromDb = conn.createStatement();
             ResultSet resultSetFromDb =
                 statementFromDb.executeQuery("select id, name from testTable where id > 0");
@@ -178,7 +178,7 @@ public class DataCachePluginTests {
     final Properties props = ConnectionStringHelper.getDefaultProperties();
     PropertyDefinition.CONNECT_TIMEOUT.set(props, "30000");
     PropertyDefinition.SOCKET_TIMEOUT.set(props, "30000");
-    props.setProperty(PropertyDefinition.PLUGINS.name, "dataCache");
+    ConnectionStringHelper.addPlugin(props, "dataCache");
     props.setProperty(
         DataCacheConnectionPlugin.DATA_CACHE_TRIGGER_CONDITION.name, ".*WRONG_EXPRESSION.*");
 
