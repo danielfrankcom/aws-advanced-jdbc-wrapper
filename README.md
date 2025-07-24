@@ -39,7 +39,7 @@ The driver includes Enhanced Failure Monitoring (EFM) that proactively monitors 
 
 ## Using the AWS JDBC Driver with...
 
-### Amazon Aurora Clusters
+### Amazon Aurora PostgreSQL and Aurora MySQL
 
 The AWS JDBC Driver provides fast failover capabilities for Aurora PostgreSQL and Aurora MySQL clusters, significantly reducing connection recovery time during database failovers.
 
