@@ -15,17 +15,9 @@ The AWS JDBC Driver provides modular functionality through feature plugins, with
 
 ## Benefits of the AWS JDBC Driver
 
-### Faster Failover and Reduced Downtime
-
-For Aurora PostgreSQL, Aurora MySQL, and RDS Multi-AZ DB clusters, the driver significantly reduces connection recovery time during [database failovers](./docs/using-the-jdbc-driver/WhatIsFailover.md). By maintaining a real-time cache of cluster topology and bypassing DNS resolution delays, applications can reconnect to healthy database instances in seconds rather than minutes.
-
 ### Seamless AWS Service Integration
 
 Built-in support for AWS Identity and Access Management (IAM) authentication eliminates the need to manage database passwords, while AWS Secrets Manager integration provides secure credential management for services that require password-based authentication.
-
-### Enhanced Failure Detection
-
-The driver includes Enhanced Failure Monitoring (EFM) that proactively monitors database node health, detecting failures faster than traditional timeout-based approaches. This allows applications to respond to issues before they impact end users.
 
 ### Preserve Existing Workflows
 
@@ -34,6 +26,16 @@ The wrapper design allows developers to continue using their preferred JDBC driv
 ### Modular Plugin Architecture
 
 The plugin-based design ensures applications only load the functionality they need, reducing dependencies and overhead.
+
+## Benefits for Aurora PostgreSQL, Aurora MySQL, and RDS
+
+### Faster Failover and Reduced Downtime
+
+For Aurora PostgreSQL, Aurora MySQL, and RDS Multi-AZ DB clusters, the driver significantly reduces connection recovery time during [database failovers](./docs/using-the-jdbc-driver/WhatIsFailover.md). By maintaining a real-time cache of cluster topology and bypassing DNS resolution delays, applications can reconnect to healthy database instances in seconds rather than minutes.
+
+### Enhanced Failure Detection
+
+The driver includes Enhanced Failure Monitoring (EFM) that proactively monitors database node health, detecting failures faster than traditional timeout-based approaches. This allows applications to respond to issues before they impact end users.
 
 ## Using the AWS JDBC Driver with...
 
